@@ -1,0 +1,87 @@
+2026/02/07
+
+[A]
+問題文
+3 桁の正整数 
+N が与えられます。 
+N を十進法で表したとき、すべての桁の数字が同じであるかどうかを判定してください。
+
+制約
+100 <= N <= 999
+入力される値は整数
+
+
+
+[自分の答え]
+N = int(input())
+
+hyaku = int(N / 100)
+ju = int(N / 10) - hyaku * 10
+iti = N - hyaku * 100 -ju * 10
+
+if hyaku == ju == iti:
+  print("Yes")
+else:
+  print("No")
+  
+  
+  
+  
+  
+[B]  
+問題文
+正整数 
+n の桁和を、 
+n を十進法で表したときの各桁の和と定めます。例えば 
+2026 の桁和は 
+2+0+2+6=10 です。
+
+N 以下の正整数のうち、桁和が 
+K であるものの個数を求めてください。
+
+制約
+1 <= N,K <= 10^5 
+5
+ 
+入力は全て整数 
+
+
+
+[自分の答え] 
+N,K = map(int,input().split())
+
+count = 0
+for i in range(N+1):
+  ju = int(i / 10)
+  hyaku = int(i/100)
+  sen = int(i / 1000)
+  man = int(i/10000)
+  
+  if i < 10:
+    if i == K:
+      count = count + 1
+      
+  elif 10 <= i < 100:
+    if ju + i - ju*10 == K :
+      count = count + 1
+      
+  elif 100 <= i < 1000:
+    if hyaku + ju-hyaku*10 + i - hyaku*100 -(ju-hyaku*10)*10==K:
+      count = count + 1
+
+      
+  elif 1000 <= i < 10000:
+    if sen + hyaku-sen*10 + ju-sen*100-(hyaku-sen*10)*10+i -sen*1000-(hyaku-sen*10)*100-(ju-sen*100-(hyaku-sen*10)*10)*10 == K:
+      count = count + 1
+      
+  elif 10000 <= i < 100000:
+    if man + sen-man*10 + hyaku-man*100-(sen-man*10)*10+ ju-man*1000-(sen-man*10)*100-(hyaku-man*100-(sen-man*10)*10)*10+ i-man*10000-(sen-man*10)*1000-(hyaku-man*100-(sen-man*10)*10)*100-(ju-man*1000-(sen-man*10)*100-(hyaku-man*100-(sen-man*10)*10)*10)*10 == K:
+      count = count+1
+
+
+print(count)
+    
+    
+  
+  
+  
