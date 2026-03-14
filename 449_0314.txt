@@ -185,3 +185,39 @@ for i in range(1<<N):
         count +=1
 
 print(count)
+
+
+
+[模範解答]
+from bisect import bisect_left, bisect_right
+
+# 1. 入力を受け取る
+N, L, R = map(int, input().split())
+S = input()
+
+# 2. 文字ごとに「何番目に出現したか」のリストを作る
+# 例: S = "aba" なら pos[0] = [0, 2] ('a'の位置), pos[1] = [1] ('b'の位置)
+pos = [[] for _ in range(26)]
+for i in range(N):
+    code = ord(S[i]) - ord('a') # 'a'なら0, 'b'なら1... に変換
+    pos[code].append(i)
+
+ans = 0
+
+# 3. 各アルファベットのリストを1つずつ調べる
+for arr in pos:
+    # リストの中にある各インデックス i についてチェック
+    for i in arr:
+        # 条件 L <= j - i <= R を変形すると
+        # i + L <= j <= i + R  となる
+        target_min = i + L
+        target_max = i + R
+        
+        # 二分探索（bisect）で、条件に合う j がリストの「何個目から何個目まで」にあるか探す
+        left_idx = bisect_left(arr, target_min)
+        right_idx = bisect_right(arr, target_max)
+        
+        # その範囲にある個数を足す
+        ans += (right_idx - left_idx)
+
+print(ans)
