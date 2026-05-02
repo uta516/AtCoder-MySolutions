@@ -1,0 +1,91 @@
+【A】
+
+[問題文]
+
+整数 $A, B, C$ が与えられます。 $A \neq B$ かつ $B = C$ であるならば Yes を、そうでないならば No を出力してください。  
+
+
+[制約]
+
+$1 \le A, B, C \le 9$  入力される値はすべて整数  
+
+
+[入力]
+
+A B C
+
+
+[出力]
+
+問題文中の指示に従って Yes, No のいずれかを出力せよ。  
+
+
+[自分の答え]
+
+A,B,C = map(int,input().split())
+
+if A != B and B==C:
+  print("Yes")
+else:
+  print("No")
+
+
+
+
+
+【C】 
+
+[問題文]
+
+整数列 $A = (A_1, A_2, \dots, A_N)$ が与えられます。以下の操作をちょうど $K$ 回行った後の $A$ の各要素の和として考えられる最小値を求めてください。  整数 $x$ を選ぶ。 $A_i = x$ なる各 $i$ について $A_i$ の値を $0$ に置き換える。 
+
+
+ [制約]
+
+$1 \le K \le N \le 3 \times 10^5$  $1 \le A_i \le 10^9$  入力される値はすべて整数  
+
+
+[入力]
+
+N K
+A1 A2 ... AN
+
+
+[出力]
+
+答えを出力せよ。 
+
+
+[自分の回答（実行時間制限超過）]
+
+import bisect
+
+N,K = map(int,input().split())
+A = list(map(int,input().split()))
+
+
+for i in range(K):
+  A.sort()
+  Max = max(A)
+  a = set(A)
+  maxx = 0
+  for j in a:
+    counts = A.count(j)
+    summ = j * counts
+    if summ > maxx:
+      maxx = summ
+      count = counts
+      value = j  
+    
+  if maxx > Max:
+    Max = value
+    
+  index1 = bisect.bisect_left(A,Max)
+  
+  if count > 1 and index1 < len(A) and A[index1] == Max:
+    for j in range(count):
+      A[index1+j] = 0
+  elif index1 < len(A) and A[index1] == Max:
+    A[index1] = 0
+
+print(sum(A))
