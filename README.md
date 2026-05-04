@@ -1,7 +1,7 @@
 # AtCoder-MySolutions
 
 AtCoder ABC の解法記録リポジトリです。
-2025年2月〜3月は問題文・コード・考察を**手動で記録**し、2025年5月からは **GitHub Actions + Anthropic Claude API** による**完全自動生成**に移行しました。
+2025年2月〜3月は問題文・コード・考察を**手動で記録**し、2025年5月からは **GitHub Actions + Google Gemini API** による**完全自動生成**に移行しました。
 
 ---
 
@@ -38,7 +38,7 @@ GitHub Actions が毎週土曜 23:00 JST に自動生成する AI 解説レポ�
 
 ## 自動化システムの仕組み
 
-2025年5月より、手動記録を **GitHub Actions + Claude API** で全自動化しました。
+2025年5月より、手動記録を **GitHub Actions + Google Gemini API** で全自動化しました。
 
 ```
 毎週土曜 23:00 JST
@@ -51,7 +51,7 @@ GitHub Actions 起動
       ├─ AtCoder スクレイピング → 問題文・制約・入出力を取得
       ├─ 提出ページ スクレイピング → 提出コードを取得
       │
-      ├─ Anthropic Claude API で解説を自動生成
+      ├─ Google Gemini API で解説を自動生成
       │     AC     → 最適解・アルゴリズム解説・計算量
       │     WA/TLE/RE → 不正解原因の分析 + 正解模範解答
       │
@@ -71,11 +71,11 @@ GitHub Actions 起動
 
 ## セットアップ手順（自動化システムの有効化）
 
-### 1. ANTHROPIC_API_KEY の取得
+### 1. GEMINI_API_KEY の取得
 
-1. [Anthropic Console](https://console.anthropic.com/) にアクセスしてアカウントを作成
-2. **API Keys** メニューから **Create Key** をクリック
-3. 生成されたキー（`sk-ant-...` で始まる文字列）をコピーして安全な場所に保管
+1. [Google AI Studio](https://aistudio.google.com/) にアクセスしてGoogleアカウントでサインイン
+2. 左メニューの **Get API key** → **Create API key** をクリック
+3. 生成されたキー（`AIza...` で始まる文字列）をコピーして安全な場所に保管
 
 ### 2. GitHub Secrets への登録
 
@@ -86,8 +86,8 @@ GitHub Actions 起動
 
    | フィールド | 値 |
    |-----------|-----|
-   | Name | `ANTHROPIC_API_KEY` |
-   | Secret | `sk-ant-...`（手順1でコピーしたキー） |
+   | Name | `GEMINI_API_KEY` |
+   | Secret | `AIza...`（手順1でコピーしたキー） |
 
 ### 3. 動作確認（手動実行）
 
@@ -110,7 +110,7 @@ AtCoder-MySolutions/
 │       └── abc_auto_report.yml   # GitHub Actions 定義（毎週土曜 23:00 JST）
 ├── scripts/
 │   └── auto_reporter.py          # メインスクリプト
-├── requirements.txt              # 依存パッケージ（anthropic / requests / bs4）
+├── requirements.txt              # 依存パッケージ（google-generativeai / requests / bs4）
 ├── .gitignore
 ├── README.md
 │
@@ -128,6 +128,6 @@ AtCoder-MySolutions/
 | 技術 | 用途 |
 |-----|------|
 | [AtCoder Problems API](https://github.com/kenkoooo/AtCoderProblems) | 提出データ・コンテスト情報の取得 |
-| [Anthropic Claude API](https://www.anthropic.com/) (`claude-sonnet-4-6`) | AI 解説の生成 |
+| [Google Gemini API](https://aistudio.google.com/) (`gemini-1.5-flash`) | AI 解説の生成（無料枠あり） |
 | BeautifulSoup4 | 問題文・提出コードのスクレイピング |
 | GitHub Actions | 毎週土曜 23:00 JST の自動実行 |

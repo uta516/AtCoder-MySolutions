@@ -11,7 +11,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import anthropic
+import google.generativeai as genai
 import requests
 from bs4 import BeautifulSoup
 
@@ -179,16 +179,17 @@ def generate_ai_explanation(
     result: str,
     source_code: str | None,
 ) -> str:
-    """Anthropic Claude APIで解説を生成する。"""
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    system, user = build_prompt(problem_title, problem_statement, result, source_code)
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=2000,
-        system=system,
-        messages=[{"role": "user", "content": user}],
+    """Google Gemini APIで解説を生成する。"""
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        generation_config=genai.types.GenerationConfig(max_output_tokens=2000),
     )
-    return message.content[0].text
+    system, user = build_prompt(problem_title, problem_statement, result, source_code)
+    # Gemini はシングルターン: system指示とuserメッセージを結合して送信
+    full_prompt = f"{system}\n\n{user}"
+    response = model.generate_content(full_prompt)
+    return response.text
 
 
 # ---------------------------------------------------------------------------
