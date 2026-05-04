@@ -1,0 +1,186 @@
+【A】
+
+[問題]
+正の整数 
+N が与えられます。
+
+N,N−1,…,1 をこの順にカンマ , で区切って出力してください。
+
+
+[制約]
+1≤N≤9
+N は整数
+入力
+入力は以下の形式で標準入力から与えられる。
+
+N
+
+
+[出力]
+N,N−1,…,1 をこの順にカンマ区切りで出力せよ。
+
+
+[入力例 1]
+9
+
+
+[出力例 1]
+9,8,7,6,5,4,3,2,1
+
+
+[自分の答え]
+
+N = int(input())
+
+a = []
+for i in range(N):
+  a.append(N-i)
+
+print(*a,sep=',')
+
+
+
+【B】
+
+[問題文]
+
+N 個の駅 
+1,2,…,N があり、これらはこの順に西から東に一直線上に並んでいます。
+AtCoder 鉄道の電車はこれら 
+N 個の駅を通り、西から東に走っています。
+1≤i<j≤N を満たす任意の2 整数 i,j について、駅 i から電車に乗って駅 j で降りるのにコストが C i,jかかります。
+
+以下のような 
+3 つの整数 
+a,b,c が存在するかを判定してください。
+
+1≤a<b<c≤N
+駅 a から電車に乗って駅 c で降りるときにかかるコストよりも、駅 a から電車に乗って駅 b で降り、再度、駅 b から電車に乗って駅 c で降りるときにかかるコストの総和の方が小さい。
+
+
+[制約]
+3≤N≤100
+1≤C i,j ≤10 9
+ 
+入力される値は全て整数
+入力
+入力は以下の形式で標準入力から与えられる。
+
+N
+C 1,2
+  
+C 1,3
+  
+… 
+C 1,N
+ 
+C 2,3
+  
+… 
+C 2,N
+​
+ 
+⋮
+C N−1,N
+​
+ 
+[出力]
+
+条件を満たす 
+3 整数 
+a,b,c が存在するならば Yes を、存在しないならば No を 
+1 行で出力せよ。
+
+[入力例]
+3
+45 450
+45
+
+
+[出力例]
+Yes
+(a,b,c) として 
+(1,2,3) を選ぶと、
+C a,b+C b,c=C1,2+C 2,3=45+45
+C a,c=C 1,3 =450
+なので、条件を満たします。
+
+
+[自分の解答(不正解)]
+N = int(input())
+
+C = [[0]*(N) for _ in range(N-1)]
+
+for i in range(N-1):
+
+  row = list(map(int,input().split()))
+
+  for j, val in enumerate(row):
+
+    C[i][i + j+1] = val
+
+
+untin = C[1][N-1]
+
+for i in range(N-1):
+
+    judge = 0
+
+    judge = C[1][i]
+
+
+    while i+1 == N:
+
+      judge = judge + C[i][i+1]
+
+      i = i + 1
+
+    if judge <= untin:
+
+      print("Yes")
+
+      break
+
+    else:
+
+      print("No")
+
+
+[模範解答]
+
+N = int(input())
+
+
+C = [[0] * N for _ in range(N)]
+
+for i in range(N - 1):
+    row = list(map(int, input().split()))
+    for idx, val in enumerate(row):
+       
+        target_station = i + idx + 1
+        C[i][target_station] = val
+
+
+found = False
+
+
+for a in range(N):
+    for b in range(a + 1, N):
+        for c in range(b + 1, N):
+            if C[a][c] > C[a][b] + C[b][c]:
+                found = True
+                break
+        if found: break
+    if found: break
+
+if found:
+    print("Yes")
+else:
+    print("No")
+
+
+
+
+
+
+

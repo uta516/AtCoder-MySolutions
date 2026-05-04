@@ -1,0 +1,77 @@
+[A]
+
+S = str(input())
+
+s=[]
+for i in S:
+  s.append(i)
+
+count = len(s)
+
+if s[0]==s[count-1]:
+  print("Yes")
+else:
+  print("No")
+  
+  
+  
+  
+  
+  
+  
+  
+[B]
+N = int(input())
+
+S = []
+lenth=[]
+for i in range(N):
+  a = input()
+  b = len(a)
+  S.append(a)
+  lenth.append(b)
+
+lenth.sort()  
+lenth.reverse()
+number = lenth[0]
+
+tten = 0
+ten = 0
+for i in range(N):
+  tten = int(number)-int(len(S[i]))
+  ten = int(tten / 2)
+
+  t = ""
+  for j in range(ten):
+    t = str(t) + "."
+    
+  if t==0:
+    print(S[i])
+  else:
+    print(str(t)+S[i]+str(t))
+  
+
+
+
+
+
+[C]
+N =int(input())
+A =list(map(int,input().split()))
+
+answer=[]
+for i in range(1,N+1):
+  s = i
+  
+  while True:
+    befors = s
+    s = A[s-1]
+    if befors == s:
+      break
+    
+    
+  answer.append(s)
+  
+print(*answer)
+  
+  

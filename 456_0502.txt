@@ -1,0 +1,154 @@
+【A】Three Dice Sum
+
+[問題文]
+
+6 つの面を持つサイコロが 3 個あります。どのサイコロも、面には 1, 2, 3, 4, 5, 6 が書かれています。これらのサイコロを同時に振ったとき、出た目の合計が $X$ になることはありますか？
+
+
+[制約]
+
+$X$ は 1 以上 20 以下の整数
+
+
+[入力]
+
+X
+
+
+[出力]
+
+出た目の合計が $X$ になることがあれば Yes、なければ No を出力せよ。
+
+
+
+[自分の答え]
+
+X = int(input())
+
+result = 0
+for i in range(1,7):
+  for j in range(1,7):
+    for k in range(1,7):
+      if i + j + k == X:
+        result = 1
+
+if result == 1:
+  print("Yes")
+else:
+  print("No")
+
+
+
+
+
+
+【B】Three Dice Probability
+
+[問題文]
+
+6 つの面を持つサイコロが 3 個あります。$i$ 個目のサイコロの $j$ 個目の面には $A_{i,j}$ が書かれています。どのサイコロも、各面が出る確率は $\frac{1}{6}$ です。これらのサイコロを同時に振ったとき、4, 5, 6 の書かれた目が 1 つずつ出る確率を求めてください。
+
+
+[制約]
+
+$A_{i,j}$ は 1 以上 6 以下の整数
+
+
+[入力]
+
+A1,1 A1,2 A1,3 A1,4 A1,5 A1,6
+A2,1 A2,2 A2,3 A2,4 A2,5 A2,6
+A3,1 A3,2 A3,3 A3,4 A3,5 A3,6
+
+
+[出力]
+
+答えを出力せよ。真の解との絶対誤差または相対誤差が $10^{-6}$ 以下のとき正解とみなされる。
+
+
+
+[自分の答え]
+
+from collections import Counter
+
+A = [list(map(int, input().split())) for _ in range(3)]
+
+four = []
+five =[]
+six = []
+for lst in A: # 変数名listをlstに変更（予約語回避）
+    four.append(lst.count(4))
+    five.append(lst.count(5))
+    six.append(lst.count(6))
+
+sum_prob = 0.0
+for i in range(3):
+  for j in range(3):
+    for k in range(3):
+      # 3つのサイコロがすべて異なる（1つずつ選ぶ）組み合わせをチェック
+      if i != j and j != k and i != k:
+        fours = four[i]/6
+        fives = five[j]/6
+        sixs = six[k]/6
+        sum_prob = sum_prob + fours * fives * sixs
+
+print(sum_prob)
+
+
+
+
+
+
+【C】Non-Adjacent Substrings
+
+[問題文]a, b, c からなる文字列 $S$ が与えられます。$S$ の空でない部分文字列であって、同じ文字が隣り合わないものの個数を 998244353 で割った余りを求めてください。ただし、2 つの部分文字列が文字列として一致しても、取り出す位置が異なるならば区別するものとします。
+
+
+[制約]
+
+$S$ は a, b, c からなる長さ 1 以上 $3 \times 10^5$ 以下の文字列
+
+
+[入力]
+
+S
+
+
+[出力]
+
+答えを出力せよ。
+
+
+[自分の回答]
+
+import sys
+import pypyjit
+
+pypyjit.set_param("max_unroll_recursion=-1")
+
+S = str(input())
+
+def prefix_sum(arr):
+    N = len(arr)
+    S_list = [''] * (N + 1)  
+    for i in range(N):
+      if i == 0:
+        S_list[i+1] = arr[i]
+      elif arr[i-1] != arr[i]:
+        S_list[i + 1] = S_list[i] + arr[i]
+      else:
+        break
+    return S_list
+
+result = []
+count = []
+temp_s = S
+for i in range(len(S)):
+  result = prefix_sum(temp_s)
+  count = count + result
+  temp_s = temp_s[1:]
+count = [x for x in count if x != ""]
+
+counts = len(count)  
+  
+print(counts % 998244353) 

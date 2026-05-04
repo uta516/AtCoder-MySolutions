@@ -1,0 +1,72 @@
+【A】
+[問題文]
+N 個の座席が横一列に並んでいます。各座席には最大で 
+1 人まで座ることができます。以下の条件を満たすように 
+M 人の人を座席に座らせることができるかどうか判定してください。
+
+隣り合う 
+2 つの席の両方に人が座ってはいけない。
+
+制約
+1≤N,M≤100
+入力される値は全て整数
+入力
+入力は以下の形式で標準入力から与えられる。
+
+N 
+M
+出力
+条件を満たすように座席に座らせることが可能ならば Yes を、不可能ならば No を出力せよ。
+
+
+[自分の答え]
+
+N,M = map(int,input().split())
+
+max = int(N / 2)
+
+if max >= M:
+  print("Yes")
+else:
+  print("No")
+
+
+
+【B】
+[問題文]
+英小文字からなる文字列 
+S が与えられます。 
+S の中で出現回数が最も多い文字をすべて取り除き、残った文字を元の順序を保ったまま連結して出力してください。
+
+なお、出現回数が最大の文字が複数種類ある場合は、そのすべてを取り除いてください。
+
+制約
+1≤∣S∣≤100
+S は英小文字からなる文字列である
+入力
+入力は以下の形式で標準入力から与えられる。
+
+S
+出力
+答えを出力せよ。
+
+
+
+[自分の答え]
+
+S = str(input())
+number = {char: S.count(char) for char in set(S)}
+
+
+max = max(number.values())
+max_items = {k: v for k, v in number.items() if v == max}
+
+answer = []
+for char in S:
+  if not char in max_items:
+    answer.append(char)
+result = ''.join(answer)
+print(result)
+  
+
+

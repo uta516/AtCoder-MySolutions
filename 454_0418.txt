@@ -1,0 +1,123 @@
+【A】 
+
+[問題文]
+
+整数 $L, R$ が与えられます。 $L$ 以上 $R$ 以下の整数がいくつあるか求めてください。 
+
+
+[制約]
+
+$1 \le L \le R \le 100$  入力される値はすべて整数  [入力]L R
+
+
+[出力]
+
+答えを出力せよ。 
+
+
+[自分の答え]
+
+L,R = map(int,input().split())
+
+print(R-L+1)
+
+
+
+
+
+【B】 
+
+[問題文]
+
+$1$ から $N$ の番号が付いた $N$ 人の人がいます。また、$1$ から $M$ の番号が付いた $M$ 種類の服があります。人 $i$ は服 $F_i$ を着ています。次の 2 個の質問に Yes か No で答えてください。  質問 1: $N$ 人全員が異なる種類の服を着ていますか？  質問 2: $M$ 種類の服すべてについて、その服を着ている人が少なくとも 1 人ずついますか？  
+
+
+[制約]
+
+$1 \le N \le 100$  $1 \le M \le 100$  $1 \le F_i \le M$ 
+
+
+[入力]
+
+N M
+F1 F2 ... FN
+
+
+[出力]
+2 行出力せよ。 $i$ 行目には質問 $i$ の答えが Yes であれば Yes を、No であれば No を出力せよ。 
+
+
+[自分の答え]
+
+N,M = map(int,input().split())
+F = list(map(int,input().split()))
+
+# 質問 1: 全員が異なる種類の服を着ているか
+if len(F) != len(set(F)):
+  print("No")
+else:
+  print("Yes")
+
+# 質問 2: 全種類の服が少なくとも 1 人ずつに選ばれているか
+m = list(range(1, M+1))
+judge = 0
+for i in range(M):
+  if m[i] not in F:
+    judge = 1
+    break
+
+if judge == 0:
+  print("Yes")
+else:
+  print("No")
+
+
+
+
+
+【C】 Information Spread
+
+[問題文]
+
+アイテム $1$ からアイテム $N$ までの $N$ 種類のアイテムがあります。はじめ、高橋君はアイテム $1$ のみ持っています。
+高橋君には $M$ 人の友達がいます。 $i$ 人目 $(1 \le i \le M)$ の友達にアイテム $A_i$ を渡すと、アイテム $B_i$ をもらうことができます。
+高橋君が手に入れることのできるアイテムはアイテム $1$ を含めて何種類あるか求めてください。  
+
+[制約]
+
+$2 \le N \le 3 \times 10^5$  $1 \le M \le 3 \times 10^5$  $1 \le A_i, B_i \le N$  $A_i \ne B_i$  入力される値はすべて整数
+
+
+[入力]
+
+N M
+A1 B1
+...
+AM BM
+
+
+[出力]
+
+答えを出力せよ。  
+
+
+[自分の答え]
+
+N,M = map(int,input().split())
+
+AB = [list(map(int,input().split())) for i in range(M)]
+AB.sort()
+
+get = []
+get.append(1)
+
+for i in range(1, N + 1):
+  if i in get:
+    for j in range(M):
+      if AB[j][0] == i:
+        get.append(AB[j][1])
+
+get = set(get)
+print(len(get))
+    
+
