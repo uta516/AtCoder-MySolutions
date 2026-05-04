@@ -1,0 +1,38 @@
+name: ABC Auto Report
+
+on:
+  schedule:
+    - cron: '0 14 * * 6'  # 毎週土曜 23:00 JST (= UTC 14:00)
+  workflow_dispatch:       # Actions タブから手動実行も可能
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # git push に必要
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate ABC report
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/auto_reporter.py
+
+      - name: Commit and push report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet || git commit -m "docs: Auto-generate ABC report"
+          git push origin main
