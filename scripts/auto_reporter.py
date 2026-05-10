@@ -43,7 +43,7 @@ def get_user_submissions(user: str, from_epoch: int) -> list[dict]:
     """指定エポック秒以降のユーザー提出をすべて返す。"""
     resp = requests.get(
         f"{ATCODER_PROBLEMS_API}/atcoder-api/v3/user/submissions",
-        params={"user": user, "epoch_second": from_epoch},
+        params={"user": user, "from_second": from_epoch},
         timeout=30,
     )
     resp.raise_for_status()
