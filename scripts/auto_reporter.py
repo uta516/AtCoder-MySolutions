@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 
 JST = timezone(timedelta(hours=9))
 ATCODER_PROBLEMS_API = "https://kenkoooo.com/atcoder"
-USER = "uta516"
+USER = "hiyokosann"
 SCRAPE_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; AtCoderAutoReporter/1.0)"}
 
 
