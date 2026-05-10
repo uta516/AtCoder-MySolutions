@@ -289,7 +289,7 @@ def main() -> None:
             result,
             source_code,
         )
-        time.sleep(1.0)
+        time.sleep(15)
 
         problem_results.append(
             {
