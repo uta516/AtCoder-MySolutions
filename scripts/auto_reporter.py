@@ -25,18 +25,26 @@ SCRAPE_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; AtCoderAutoReporter/1.
 # データ取得
 # ---------------------------------------------------------------------------
 
-def get_todays_abc_contest() -> dict | None:
-    """今日開催のABCコンテストを返す。見つからなければNone。"""
+def get_recent_abc_contest() -> dict | None:
+    """直近1週間以内に開催され、すでに終了した最新のABCコンテストを返す。見つからなければNone。"""
     resp = requests.get(f"{ATCODER_PROBLEMS_API}/resources/contests.json", timeout=30)
     resp.raise_for_status()
-    today = datetime.now(JST).date()
+    now = datetime.now(JST)
+    now_epoch = now.timestamp()
+    one_week_ago_epoch = now_epoch - 7 * 24 * 3600
+
+    candidates = []
     for contest in resp.json():
         if not contest["id"].startswith("abc"):
             continue
-        start_dt = datetime.fromtimestamp(contest["start_epoch_second"], tz=JST)
-        if start_dt.date() == today:
-            return contest
-    return None
+        start = contest["start_epoch_second"]
+        end = start + contest.get("duration_second", 6000)
+        if start >= one_week_ago_epoch and end <= now_epoch:
+            candidates.append(contest)
+
+    if not candidates:
+        return None
+    return max(candidates, key=lambda c: c["start_epoch_second"])
 
 
 def get_user_submissions(user: str, from_epoch: int) -> list[dict]:
@@ -242,14 +250,15 @@ def main() -> None:
     now = datetime.now(JST)
     print(f"[{now.strftime('%Y-%m-%d %H:%M JST')}] ABC Auto Reporter 起動")
 
-    contest = get_todays_abc_contest()
+    contest = get_recent_abc_contest()
     if not contest:
-        print("本日開催のABCコンテストが見つかりませんでした。終了します。")
+        print("直近1週間以内に終了したABCコンテストが見つかりませんでした。終了します。")
         sys.exit(0)
 
     contest_id = contest["id"]
     contest_num = re.sub(r"\D", "", contest_id)  # "abc456" → "456"
-    date_str = now.strftime("%m%d")
+    contest_date = datetime.fromtimestamp(contest["start_epoch_second"], tz=JST)
+    date_str = contest_date.strftime("%m%d")
     output_filename = f"{contest_num}_{date_str}.md"
     print(f"コンテスト: {contest_id.upper()}")
 
