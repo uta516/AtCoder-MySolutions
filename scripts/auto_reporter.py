@@ -190,7 +190,7 @@ def generate_ai_explanation(
     """Google Gemini APIで解説を生成する。"""
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
     model = genai.GenerativeModel(
-        model_name="gemini-pro",
+        model_name="gemini-1.5-flash-latest",
         generation_config=genai.types.GenerationConfig(max_output_tokens=2000),
     )
     system, user = build_prompt(problem_title, problem_statement, result, source_code)
