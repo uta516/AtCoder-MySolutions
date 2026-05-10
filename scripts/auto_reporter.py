@@ -193,7 +193,7 @@ def generate_ai_explanation(
     system, user = build_prompt(problem_title, problem_statement, result, source_code)
     full_prompt = f"{system}\n\n{user}"
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=full_prompt,
         config=types.GenerateContentConfig(max_output_tokens=2000),
     )
