@@ -69,20 +69,35 @@ def latest_per_problem(submissions: list[dict], contest_id: str) -> dict[str, di
 
 
 def scrape_problem(contest_id: str, problem_id: str) -> dict:
-    """AtCoderから問題タイトルと問題文を取得する。"""
+    """AtCoderから問題タイトル・問題文・セクション別テキストを取得する。"""
     url = f"https://atcoder.jp/contests/{contest_id}/tasks/{problem_id}"
     try:
         resp = requests.get(url, headers=SCRAPE_HEADERS, timeout=15)
         if resp.status_code != 200:
-            return {"title": problem_id, "statement": "(問題文の取得に失敗しました)"}
+            return {"title": problem_id, "statement": "(問題文の取得に失敗しました)", "sections": {}}
         soup = BeautifulSoup(resp.text, "html.parser")
         title_elem = soup.find("span", class_="h2")
         title = title_elem.get_text(strip=True) if title_elem else problem_id
         task_div = soup.find("div", id="task-statement")
-        statement = task_div.get_text(separator="\n", strip=True)[:4000] if task_div else ""
-        return {"title": title, "statement": statement}
+        if not task_div:
+            return {"title": title, "statement": "", "sections": {}}
+        statement = task_div.get_text(separator="\n", strip=True)[:5000]
+        lang_ja = task_div.find("span", class_="lang-ja")
+        search_in = lang_ja if lang_ja else task_div
+        sections: dict[str, str] = {}
+        for section in search_in.find_all("section"):
+            h_tag = section.find(["h3", "h4"])
+            if not h_tag:
+                continue
+            header = h_tag.get_text(strip=True)
+            full_text = section.get_text(separator="\n", strip=True)
+            header_text = h_tag.get_text(strip=True)
+            content = full_text[len(header_text):].strip() if full_text.startswith(header_text) else full_text
+            if content:
+                sections[header] = content
+        return {"title": title, "statement": statement, "sections": sections}
     except Exception as e:
-        return {"title": problem_id, "statement": f"(取得エラー: {e})"}
+        return {"title": problem_id, "statement": f"(取得エラー: {e})", "sections": {}}
 
 
 def scrape_submission_code(contest_id: str, submission_id: int) -> str | None:
@@ -128,7 +143,7 @@ def build_prompt(
 {problem_statement}
 
 ---
-以下の形式で回答してください:
+以下の形式で、省略せず完全に回答してください:
 
 ## アルゴリズム解説
 （何を求めているか・どの手法で解くかを簡潔に）
@@ -139,11 +154,11 @@ def build_prompt(
 
 ## Python 模範解答
 ```python
-# 最適化されたコード
+# 最適化されたコード（コメント付きで完全なコードを記載）
 ```
 
 ## 実装のポイント
-（重要な注意点・落とし穴）
+（重要な注意点・落とし穴を箇条書きで）
 """
     else:
         system = (
@@ -159,7 +174,7 @@ def build_prompt(
 {problem_statement}
 
 ---
-以下の形式で回答してください:
+以下の形式で、省略せず完全に回答してください:
 
 ## {result} の原因分析
 （エッジケースの漏れ・計算量の問題・アルゴリズムの誤りなどを具体的に）
@@ -173,11 +188,11 @@ def build_prompt(
 
 ## Python 正解模範解答
 ```python
-# 正解コード
+# 正解コード（コメント付きで完全なコードを記載）
 ```
 
 ## 実装のポイント
-（重要な注意点・落とし穴）
+（重要な注意点・落とし穴を箇条書きで）
 """
     return system, user
 
@@ -195,7 +210,7 @@ def generate_ai_explanation(
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=full_prompt,
-        config=types.GenerateContentConfig(max_output_tokens=2000),
+        config=types.GenerateContentConfig(max_output_tokens=8192),
     )
     return response.text
 
@@ -203,6 +218,9 @@ def generate_ai_explanation(
 # ---------------------------------------------------------------------------
 # レポート生成
 # ---------------------------------------------------------------------------
+
+SECTION_ORDER = ["問題文", "制約", "入力", "出力"]
+
 
 def build_report(
     contest_id: str,
@@ -225,16 +243,48 @@ def build_report(
         result = item["result"]
         sub = item["submission"]
         ai_text = item["ai_text"]
+        sections = item.get("sections", {})
+        source_code = item.get("source_code")
 
         badge = "✅ AC" if result == "AC" else f"❌ {result}"
+
+        lines.append(f"## 問題{index}: {title}\n")
+
+        # 1. 問題文セクション（問題文 → 制約 → 入力 → 出力 の順）
+        displayed = set()
+        for key in SECTION_ORDER:
+            if key in sections:
+                lines.append(f"### {key}\n\n{sections[key]}\n")
+                displayed.add(key)
+        for key, val in sections.items():
+            if key not in displayed:
+                lines.append(f"### {key}\n\n{val}\n")
+
+        lines.append("---\n")
+
+        # 2. 提出結果
         lines += [
-            f"## 問題{index}: {title}\n",
+            "### 提出結果\n",
             "| 項目 | 内容 |",
             "|------|------|",
             f"| 提出結果 | **{badge}** |",
             f"| 言語 | {sub.get('language', 'N/A')} |",
             f"| 実行時間 | {sub.get('execution_time', 'N/A')} ms |",
             f"| 提出リンク | [#{sub['id']}](https://atcoder.jp/contests/{contest_id}/submissions/{sub['id']}) |\n",
+        ]
+
+        if source_code:
+            lines += [
+                "<details><summary>提出コード</summary>\n",
+                f"```python\n{source_code}\n```\n",
+                "</details>\n",
+            ]
+
+        lines.append("---\n")
+
+        # 3. AI解説
+        lines += [
+            "### 解説\n",
             ai_text,
             "\n---\n",
         ]
@@ -297,6 +347,8 @@ def main() -> None:
                 "title": problem_info["title"],
                 "result": result,
                 "submission": sub,
+                "sections": problem_info.get("sections", {}),
+                "source_code": source_code,
                 "ai_text": ai_text,
             }
         )
